@@ -34,4 +34,5 @@ private:
 private slots:
     void load_media();
     void show_media();
+    void stop_media();
 };

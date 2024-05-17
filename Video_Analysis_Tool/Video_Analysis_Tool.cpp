@@ -9,6 +9,7 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     init_ui();
 
     connect(ui.btn_load, SIGNAL(clicked()), this, SLOT(load_media()));
+    connect(ui.btn_play_pause, SIGNAL(clicked()), this, SLOT(stop_media()));
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
@@ -68,4 +69,17 @@ void Video_Analysis_Tool::show_media() {
 
     // Display the QImage in QLabel
     ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
+
+    play_status = true;
+
+}
+
+void Video_Analysis_Tool::stop_media() {
+    if (!play_status) {
+        timer.start(1000 / v_fps); // 일시정지 해제
+    }
+    else {
+        timer.stop(); // 일시정지
+    }
+    play_status = !play_status;
 }
