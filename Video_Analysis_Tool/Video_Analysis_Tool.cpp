@@ -1,6 +1,7 @@
 ﻿#include "Video_Analysis_Tool.h"
 #include <QFileDialog>
 #include <opencv2/opencv.hpp>
+#include <QMessageBox>
 
 Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     : QMainWindow(parent)
@@ -10,6 +11,9 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
 
     connect(ui.btn_load, SIGNAL(clicked()), this, SLOT(load_media()));
     connect(ui.btn_play_pause, SIGNAL(clicked()), this, SLOT(stop_media()));
+    connect(ui.btn_next, SIGNAL(clicked()), this, SLOT(next_media()));
+    connect(ui.btn_prev, SIGNAL(clicked()), this, SLOT(prev_media()));
+    connect(ui.slider_length, SIGNAL(sliderMoved(int)), this, SLOT(slider_move(int)));
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
@@ -30,6 +34,8 @@ void Video_Analysis_Tool::load_media() {
     if (!file_list.isEmpty()) {
         current_path = file_list[0];
         set_video(current_path);
+        media_cnt = 0;
+        file_list_len = file_list.size();
     }
 }
 
@@ -41,6 +47,9 @@ void Video_Analysis_Tool::set_video(QString file_path) {
         v_fps = cap.get(cv::CAP_PROP_FPS);
         v_width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
         v_height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+        total_frame_len = cap.get(cv::CAP_PROP_FRAME_COUNT);
+
+        ui.slider_length->setMaximum(total_frame_len);
 
         connect(&timer, &QTimer::timeout, this, &Video_Analysis_Tool::show_media);
         timer.start(1000 / v_fps);
@@ -58,6 +67,9 @@ void Video_Analysis_Tool::show_media() {
         return;
     }
 
+    int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+    ui.slider_length->setValue(current_frame);
+
     // Convert BGR to RGB
     cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
@@ -71,15 +83,51 @@ void Video_Analysis_Tool::show_media() {
     ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
 
     play_status = true;
+    ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
 
 }
 
 void Video_Analysis_Tool::stop_media() {
     if (!play_status) {
         timer.start(1000 / v_fps); // 일시정지 해제
+        ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     }
     else {
         timer.stop(); // 일시정지
+        ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     }
     play_status = !play_status;
+}
+
+void Video_Analysis_Tool::next_media() {
+    media_cnt += 1;
+    if (media_cnt < file_list_len) {
+        QString* first_path(&file_list[0]);
+        set_video(*(first_path + media_cnt));
+        //ui.sl_imgBrightness->setValue(0);
+    }
+    else {
+        media_cnt = file_list_len;
+        QMessageBox::warning(nullptr, "Warning", "This is the last video.");
+    }
+}
+
+void Video_Analysis_Tool::prev_media() {
+    media_cnt -= 1;
+    if (media_cnt >= 0) {
+        QString* first_path(&file_list[0]);
+        set_video(*(first_path + media_cnt));
+        //ui.sl_imgBrightness->setValue(0);
+    }
+    else {
+        media_cnt = 0;
+        QMessageBox::warning(this, "Warning", "This is the first video.");
+    }
+}
+
+void Video_Analysis_Tool::slider_move(int position) {
+    cap.set(cv::CAP_PROP_POS_FRAMES, position);
+    //if (!play_status) {
+    //    show_media();
+    //}
 }

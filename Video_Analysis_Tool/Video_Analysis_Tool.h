@@ -22,10 +22,14 @@ private:
     QString current_path;
     QTimer timer;
     cv::VideoCapture cap;
+    int media_cnt;
+    int file_list_len;
 
     float v_fps;
     int v_width;
     int v_height;
+    int total_frame_len;
+    
     bool play_status = false;
     
     void init_ui();
@@ -35,4 +39,7 @@ private slots:
     void load_media();
     void show_media();
     void stop_media();
+    void next_media();
+    void prev_media();
+    void slider_move(int position);
 };
