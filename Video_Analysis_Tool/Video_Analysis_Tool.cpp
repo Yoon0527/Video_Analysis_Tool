@@ -6,12 +6,21 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+    init_ui();
 
     connect(ui.btn_load, SIGNAL(clicked()), this, SLOT(load_media()));
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
 {}
+
+void Video_Analysis_Tool::init_ui() {
+    ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    ui.btn_next->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+    ui.btn_prev->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
+    ui.btn_skip->setIcon(style()->standardIcon(QStyle::SP_MediaSeekForward));
+    ui.btn_skip_before->setIcon(style()->standardIcon(QStyle::SP_MediaSeekBackward));
+}
 
 void Video_Analysis_Tool::load_media() {
     QFileDialog dlg;

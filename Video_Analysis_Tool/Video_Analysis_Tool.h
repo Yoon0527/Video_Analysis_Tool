@@ -28,6 +28,7 @@ private:
     int v_height;
     bool play_status = false;
     
+    void init_ui();
     void set_video(QString file_path);
 
 private slots:
