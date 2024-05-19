@@ -14,6 +14,8 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     connect(ui.btn_next, SIGNAL(clicked()), this, SLOT(next_media()));
     connect(ui.btn_prev, SIGNAL(clicked()), this, SLOT(prev_media()));
     connect(ui.slider_length, SIGNAL(sliderMoved(int)), this, SLOT(slider_move(int)));
+    connect(ui.btn_skip, SIGNAL(clicked()), this, SLOT(move_forward()));
+    connect(ui.btn_skip_before, SIGNAL(clicked()), this, SLOT(move_backward()));
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
@@ -84,6 +86,7 @@ void Video_Analysis_Tool::show_media() {
 
     play_status = true;
     ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    ui.slider_length->setEnabled(true);
 
 }
 
@@ -129,5 +132,29 @@ void Video_Analysis_Tool::slider_move(int position) {
     cap.set(cv::CAP_PROP_POS_FRAMES, position);
     //if (!play_status) {
     //    show_media();
+    //}
+}
+
+void Video_Analysis_Tool::move_forward() {
+    int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+    int target_frame = current_frame + (10 * v_fps); // 10초 앞으로
+    if (target_frame >= total_frame_len) {
+        target_frame = total_frame_len - 1;
+    }
+    cap.set(cv::CAP_PROP_POS_FRAMES, target_frame);
+    //if (is_paused) {
+    //    show_media(); // 일시정지 상태일 때 프레임을 갱신
+    //}
+}
+
+void Video_Analysis_Tool::move_backward() {
+    int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+    int target_frame = current_frame - (10 * v_fps); // 10초 뒤로
+    if (target_frame < 0) {
+        target_frame = 0;
+    }
+    cap.set(cv::CAP_PROP_POS_FRAMES, target_frame);
+    //if (is_paused) {
+    //    show_media(); // 일시정지 상태일 때 프레임을 갱신
     //}
 }

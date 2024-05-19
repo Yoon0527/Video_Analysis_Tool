@@ -42,4 +42,6 @@ private slots:
     void next_media();
     void prev_media();
     void slider_move(int position);
+    void move_forward();
+    void move_backward();
 };
