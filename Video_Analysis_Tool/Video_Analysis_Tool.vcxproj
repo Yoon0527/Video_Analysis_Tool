@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.props" Condition="Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -70,6 +71,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcrypto64MDd.lib;libcrypyo64MTd.lib;libssl64MDd.lib;libssl64MTd.lib</AdditionalDependencies>
@@ -79,6 +81,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\opencv\build\include;%(AdditionalIncludeDirectories);$(ProjectDir);$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcrypto64MDd.lib;libcrypyo64MTd.lib;libssl64MDd.lib;libssl64MTd.lib</AdditionalDependencies>
@@ -117,19 +120,32 @@
     <QtRcc Include="Video_Analysis_Tool.qrc" />
     <QtUic Include="Video_Analysis_Tool.ui" />
     <QtMoc Include="Video_Analysis_Tool.h" />
+    <ClCompile Include="ai_run.cpp" />
     <ClCompile Include="decoding.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="Video_Analysis_Tool.cpp" />
     <ClCompile Include="main.cpp" />
+    <None Include="packages.config" />
     <None Include="Video_Analysis_Tool.ico" />
     <ResourceCompile Include="Video_Analysis_Tool.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ai_run.h" />
     <ClInclude Include="decoding.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />
   </ImportGroup>
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets" Condition="Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>이 프로젝트는 이 컴퓨터에 없는 NuGet 패키지를 참조합니다. 해당 패키지를 다운로드하려면 NuGet 패키지 복원을 사용하십시오. 자세한 내용은 http://go.microsoft.com/fwlink/?LinkID=322105를 참조하십시오. 누락된 파일은 {0}입니다.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.OnnxRuntime.Gpu.1.9.0\build\native\Microsoft.ML.OnnxRuntime.Gpu.targets'))" />
+  </Target>
 </Project>

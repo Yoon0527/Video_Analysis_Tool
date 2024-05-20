@@ -49,10 +49,25 @@
     <ClCompile Include="decoding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ai_run.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decoding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ai_run.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
