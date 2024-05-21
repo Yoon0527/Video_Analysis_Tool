@@ -1,6 +1,7 @@
 #include <string>
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
+#include <vector>
 
 class AESCipher {
 private:
@@ -9,6 +10,8 @@ private:
 
 public:
     AESCipher(const std::string& key);
-    std::string decrypt(const std::string& enc);
+    void handleErrors();
+    //std::string decrypt(const std::string& enc);
+    std::string decrypt(const std::vector<unsigned char>& encrypted);
     std::string unpad(const std::string& s);
 };
