@@ -122,6 +122,8 @@
     <QtMoc Include="Video_Analysis_Tool.h" />
     <ClCompile Include="ai_run.cpp" />
     <ClCompile Include="decoding.cpp" />
+    <ClCompile Include="inference.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="Video_Analysis_Tool.cpp" />
     <ClCompile Include="main.cpp" />
@@ -132,6 +134,8 @@
   <ItemGroup>
     <ClInclude Include="ai_run.h" />
     <ClInclude Include="decoding.h" />
+    <ClInclude Include="inference.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

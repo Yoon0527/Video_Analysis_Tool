@@ -21,7 +21,7 @@ std::vector<unsigned char> ai_run::readFile(const std::string& filePath) {
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
     std::vector<unsigned char> buffer(size);
-    if (!file.read(reinterpret_cast<char*>(buffer.data(), size))) {
+    if (!file.read(reinterpret_cast<char*>(buffer.data()), size)) {
         throw std::runtime_error("파일을 읽는 데 실패했습니다: " + filePath);
     }
     return buffer;
