@@ -28,5 +28,5 @@ private:
     int init_detection;
     int continue_detection;
     int frame_location_number;
-
+    std::vector<std::vector<int>> AI_run(cv::Mat frame, std::vector<int> crop_coord, int score_threshold, int frame_number, int patient_number, std::string screening_start_time)
 };
