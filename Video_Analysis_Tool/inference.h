@@ -2,4 +2,14 @@
 #include "ModelLoader.h"
 #include <onnxruntime_cxx_api.h>
 
-void inference_frame();
+
+class Inference {
+public:
+	Inference();
+	~Inference();
+private:
+	std::unique_ptr<Ort::Session> ortSessionDetection;
+	std::unique_ptr<Ort::Session> ortSessionClassification;
+	
+	void inference_frame();
+};
