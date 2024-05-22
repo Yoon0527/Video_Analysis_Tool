@@ -57,7 +57,7 @@ void Video_Analysis_Tool::set_video(QString file_path) {
         total_frame_len = cap.get(cv::CAP_PROP_FRAME_COUNT);
 
         ui.slider_length->setMaximum(total_frame_len);
-
+        roi = QRect(0, 0, v_width, v_height);
         connect(&timer, &QTimer::timeout, this, &Video_Analysis_Tool::show_media);
         timer.start(1000 / v_fps);
     }
@@ -69,18 +69,22 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //void Video_Analysis_Tool::show_media() {
 //    cv::Mat frame;
 //    cap >> frame;
-//    
+//    //roi = QRect(798, 104, 1008, 875);
 //    if (frame.empty()) {
 //        timer.stop();
 //        return;
 //    }
 //    else {
 //        if (!roi.isNull()) {
-//            cv::Mat roi_frame;
+//            // Convert QRect to cv::Rect
 //            cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
-//            roi_frame = frame(cvROI);
+//            //cv::Rect cvROI(798, 104, 1008, 875);
+//            // Ensure the ROI is within the bounds of the frame
+//            //cvROI &= cv::Rect(0, 0, frame.cols, frame.rows);
 //
-//            int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+//            cv::Mat roi_frame = frame(cvROI).clone();
+//
+//            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
 //            ui.slider_length->setValue(current_frame);
 //
 //            // Convert BGR to RGB
@@ -94,13 +98,9 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //
 //            // Display the QImage in QLabel
 //            ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
-//
-//            play_status = true;
-//            ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-//            ui.slider_length->setEnabled(true);
 //        }
 //        else {
-//            int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+//            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
 //            ui.slider_length->setValue(current_frame);
 //
 //            // Convert BGR to RGB
@@ -114,12 +114,11 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //
 //            // Display the QImage in QLabel
 //            ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
-//
-//            play_status = true;
-//            ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-//            ui.slider_length->setEnabled(true);
 //        }
 //    }
+//    play_status = true;
+//    ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+//    ui.slider_length->setEnabled(true);
 //}
 
 void Video_Analysis_Tool::show_media() {
@@ -130,52 +129,34 @@ void Video_Analysis_Tool::show_media() {
         timer.stop();
         return;
     }
-    else {
-        if (!roi.isNull()) {
-            // Convert QRect to cv::Rect
-            cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
-            //cv::Rect cvROI(798, 104, 1008, 875);
-            // Ensure the ROI is within the bounds of the frame
-            //cvROI &= cv::Rect(0, 0, frame.cols, frame.rows);
 
-            cv::Mat roi_frame = frame(cvROI).clone();
+    cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
+    //cv::Rect cvROI(798, 104, 1008, 875);
+    // Ensure the ROI is within the bounds of the frame
+    //cvROI &= cv::Rect(0, 0, frame.cols, frame.rows);
 
-            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
-            ui.slider_length->setValue(current_frame);
+    cv::Mat roi_frame = frame(cvROI).clone();
 
-            // Convert BGR to RGB
-            cv::cvtColor(roi_frame, roi_frame, cv::COLOR_BGR2RGB);
+    current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+    ui.slider_length->setValue(current_frame);
 
-            // Convert frame to QImage
-            QImage img((const unsigned char*)(roi_frame.data), roi_frame.cols, roi_frame.rows, QImage::Format_RGB888);
+    // Convert BGR to RGB
+    cv::cvtColor(roi_frame, roi_frame, cv::COLOR_BGR2RGB);
 
-            // Scale image to fit QLabel
-            img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // Convert frame to QImage
+    QImage img((const unsigned char*)(roi_frame.data), roi_frame.cols, roi_frame.rows, QImage::Format_RGB888);
 
-            // Display the QImage in QLabel
-            ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
-        }
-        else {
-            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
-            ui.slider_length->setValue(current_frame);
+    // Scale image to fit QLabel
+    img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-            // Convert BGR to RGB
-            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+    // Display the QImage in QLabel
+    ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
 
-            // Convert frame to QImage
-            QImage img((const unsigned char*)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
-
-            // Scale image to fit QLabel
-            img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-            // Display the QImage in QLabel
-            ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
-        }
-    }
     play_status = true;
     ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     ui.slider_length->setEnabled(true);
 }
+
 
 void Video_Analysis_Tool::stop_media() {
     if (!play_status) {
@@ -272,11 +253,23 @@ void Video_Analysis_Tool::ai_analysis() {
 void Video_Analysis_Tool::crop_frame() {
     cv::Mat frame;
     if (cap.read(frame)) {
+        if (play_status) {
+            stop_media();
+        }
         QRect initialROI(0, 0, frame.cols, frame.rows);
         CropFrame roiSelector(frame, initialROI, this);
         if (roiSelector.exec() == QDialog::Accepted) {
             roi = roiSelector.getSelectedROI();
+            if (!play_status) {
+                stop_media();
+            }
             qDebug() << roi;
         }
     }
+}
+
+void Video_Analysis_Tool::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+    // 타이머 주기를 고정하여 속도 느려짐 방지
+    timer.start(1000 / v_fps);
 }

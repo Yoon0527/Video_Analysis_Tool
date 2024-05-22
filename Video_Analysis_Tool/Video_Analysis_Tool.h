@@ -50,4 +50,5 @@ private slots:
     void move_backward();
     void ai_analysis();
     void crop_frame();
+    void resizeEvent(QResizeEvent* event);
 };
