@@ -7,6 +7,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
+#include "inference.h"
 
 class Video_Analysis_Tool : public QMainWindow
 {
@@ -21,6 +22,7 @@ private:
     QStringList file_list;
     QString current_path;
     QTimer timer;
+    QRect roi;
     cv::VideoCapture cap;
     int media_cnt;
     int file_list_len;
@@ -31,7 +33,8 @@ private:
     int total_frame_len;
     
     bool play_status = false;
-    
+    bool ai_status = false;
+
     void init_ui();
     void set_video(QString file_path);
 
@@ -44,4 +47,6 @@ private slots:
     void slider_move(int position);
     void move_forward();
     void move_backward();
+    void ai_analysis();
+    void crop_frame();
 };

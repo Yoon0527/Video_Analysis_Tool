@@ -21,6 +21,12 @@ Inference::Inference() {
     }
 }
 
-void Inference::inference_frame() {
-    
+Inference::~Inference() {
+
+}
+
+void Inference::inference_frame(cv::Mat frame, int sensitivity, int frame_number, int patient_number) {
+    double score_threshold = 0.6;
+    std::vector<int> result_output;
+
 }

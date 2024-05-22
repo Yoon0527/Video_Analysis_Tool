@@ -1,4 +1,5 @@
 ﻿#include "Video_Analysis_Tool.h"
+#include "cropFrame.h"
 #include <QFileDialog>
 #include <opencv2/opencv.hpp>
 #include <QMessageBox>
@@ -16,6 +17,10 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     connect(ui.slider_length, SIGNAL(sliderMoved(int)), this, SLOT(slider_move(int)));
     connect(ui.btn_skip, SIGNAL(clicked()), this, SLOT(move_forward()));
     connect(ui.btn_skip_before, SIGNAL(clicked()), this, SLOT(move_backward()));
+    connect(ui.btn_analysis, SIGNAL(clicked()), this, SLOT(ai_analysis()));
+    connect(ui.btn_crop, SIGNAL(clicked()), this, SLOT(crop_frame()));
+
+    Inference ai_model;
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
@@ -61,33 +66,108 @@ void Video_Analysis_Tool::set_video(QString file_path) {
     }
 }
 
+//void Video_Analysis_Tool::show_media() {
+//    cv::Mat frame;
+//    cap >> frame;
+//    
+//    if (frame.empty()) {
+//        timer.stop();
+//        return;
+//    }
+//    else {
+//        if (!roi.isNull()) {
+//            cv::Mat roi_frame;
+//            cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
+//            roi_frame = frame(cvROI);
+//
+//            int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+//            ui.slider_length->setValue(current_frame);
+//
+//            // Convert BGR to RGB
+//            cv::cvtColor(roi_frame, roi_frame, cv::COLOR_BGR2RGB);
+//
+//            // Convert frame to QImage
+//            QImage img((const unsigned char*)(roi_frame.data), roi_frame.cols, roi_frame.rows, QImage::Format_RGB888);
+//
+//            // Scale image to fit QLabel
+//            img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+//
+//            // Display the QImage in QLabel
+//            ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
+//
+//            play_status = true;
+//            ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+//            ui.slider_length->setEnabled(true);
+//        }
+//        else {
+//            int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+//            ui.slider_length->setValue(current_frame);
+//
+//            // Convert BGR to RGB
+//            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+//
+//            // Convert frame to QImage
+//            QImage img((const unsigned char*)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+//
+//            // Scale image to fit QLabel
+//            img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+//
+//            // Display the QImage in QLabel
+//            ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
+//
+//            play_status = true;
+//            ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+//            ui.slider_length->setEnabled(true);
+//        }
+//    }
+//}
+
 void Video_Analysis_Tool::show_media() {
     cv::Mat frame;
     cap >> frame;
+
     if (frame.empty()) {
         timer.stop();
         return;
     }
 
+    if (roi.isValid()) {
+        cv::Mat roi_frame;
+        cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
+        roi_frame = frame(cvROI);
+
+        // Convert BGR to RGB
+        cv::cvtColor(roi_frame, roi_frame, cv::COLOR_BGR2RGB);
+
+        // Convert frame to QImage
+        QImage img(roi_frame.data, roi_frame.cols, roi_frame.rows, roi_frame.step, QImage::Format_RGB888);
+
+        // Scale image to fit QLabel
+        img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+        // Display the QImage in QLabel
+        ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
+    }
+    else {
+        // Convert BGR to RGB
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+
+        // Convert frame to QImage
+        QImage img(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+
+        // Scale image to fit QLabel
+        img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+        // Display the QImage in QLabel
+        ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
+    }
+
     int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
     ui.slider_length->setValue(current_frame);
-
-    // Convert BGR to RGB
-    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-
-    // Convert frame to QImage
-    QImage img((const unsigned char*)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
-
-    // Scale image to fit QLabel
-    img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    // Display the QImage in QLabel
-    ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
 
     play_status = true;
     ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     ui.slider_length->setEnabled(true);
-
 }
 
 void Video_Analysis_Tool::stop_media() {
@@ -157,4 +237,56 @@ void Video_Analysis_Tool::move_backward() {
     //if (is_paused) {
     //    show_media(); // 일시정지 상태일 때 프레임을 갱신
     //}
+}
+
+void Video_Analysis_Tool::ai_analysis() {
+    ai_status = !ai_status;
+
+    if (ai_status) {
+        ui.btn_analysis->setText("Ai Analysis Off");
+    }
+    else if (!ai_status) {
+        ui.btn_analysis->setText("Ai Analysis On");
+    }
+}
+
+//void Video_Analysis_Tool::crop_frame() {
+//    cv::Mat frame;
+//    roi = QRect(0, 0, frame.cols, frame.rows);
+//    if (cap.read(frame)) {
+//        CropFrame roiSelector(frame, roi, this);
+//        if (roiSelector.exec() == QDialog::Accepted) {
+//            roi = roiSelector.getSelectedROI();
+//            qDebug() << roi;
+//        }
+//    }
+//}
+
+void Video_Analysis_Tool::crop_frame() {
+    cv::Mat frame;
+    cap.read(frame);
+    if (!frame.empty()) {
+        cv::Mat resizedFrame;
+        cv::Size displaySize(ui.lbl_frame->width(), ui.lbl_frame->height());
+        cv::resize(frame, resizedFrame, displaySize);
+
+        QRect initialROI(0, 0, resizedFrame.cols, resizedFrame.rows);
+        CropFrame roiSelector(resizedFrame, initialROI, this);
+        if (roiSelector.exec() == QDialog::Accepted) {
+            QRect selectedROI = roiSelector.getSelectedROI();
+
+            double scaleX = static_cast<double>(frame.cols) / resizedFrame.cols;
+            double scaleY = static_cast<double>(frame.rows) / resizedFrame.rows;
+
+            roi = QRect(
+                static_cast<int>(selectedROI.x() * scaleX),
+                static_cast<int>(selectedROI.y() * scaleY),
+                static_cast<int>(selectedROI.width() * scaleX),
+                static_cast<int>(selectedROI.height() * scaleY)
+            );
+
+            //roiSelected = true;
+            qDebug() << "Selected ROI:" << roi;
+        }
+    }
 }

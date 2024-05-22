@@ -121,6 +121,7 @@
     <QtUic Include="Video_Analysis_Tool.ui" />
     <QtMoc Include="Video_Analysis_Tool.h" />
     <ClCompile Include="ai_run.cpp" />
+    <ClCompile Include="cropFrame.cpp" />
     <ClCompile Include="decoding.cpp" />
     <ClCompile Include="inference.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
@@ -133,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ai_run.h" />
+    <QtMoc Include="cropFrame.h" />
     <ClInclude Include="decoding.h" />
     <ClInclude Include="inference.h" />
     <ClInclude Include="ModelLoader.h" />
