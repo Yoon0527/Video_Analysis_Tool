@@ -140,7 +140,7 @@ void Video_Analysis_Tool::show_media() {
 
             cv::Mat roi_frame = frame(cvROI).clone();
 
-            int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
             ui.slider_length->setValue(current_frame);
 
             // Convert BGR to RGB
@@ -154,13 +154,9 @@ void Video_Analysis_Tool::show_media() {
 
             // Display the QImage in QLabel
             ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
-
-            play_status = true;
-            ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-            ui.slider_length->setEnabled(true);
         }
         else {
-            int current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
             ui.slider_length->setValue(current_frame);
 
             // Convert BGR to RGB
@@ -174,12 +170,11 @@ void Video_Analysis_Tool::show_media() {
 
             // Display the QImage in QLabel
             ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
-
-            play_status = true;
-            ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-            ui.slider_length->setEnabled(true);
         }
     }
+    play_status = true;
+    ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    ui.slider_length->setEnabled(true);
 }
 
 void Video_Analysis_Tool::stop_media() {

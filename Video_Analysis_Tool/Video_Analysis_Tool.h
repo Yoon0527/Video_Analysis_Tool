@@ -32,7 +32,7 @@ private:
     int v_width;
     int v_height;
     int total_frame_len;
-    
+    int current_frame;
     bool play_status = false;
     bool ai_status = false;
     bool roiSelected = false;
