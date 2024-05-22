@@ -23,6 +23,7 @@ private:
     QString current_path;
     QTimer timer;
     QRect roi;
+    
     cv::VideoCapture cap;
     int media_cnt;
     int file_list_len;
@@ -34,7 +35,7 @@ private:
     
     bool play_status = false;
     bool ai_status = false;
-
+    bool roiSelected = false;
     void init_ui();
     void set_video(QString file_path);
 

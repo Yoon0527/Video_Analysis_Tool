@@ -11,7 +11,7 @@ CropFrame::CropFrame(cv::Mat frame, QRect initialROI, QWidget* parent)
         qDebug() << "Empty frame!";
         return;
     }
-
+    originalFrameSize = QSize(frame.cols, frame.rows);
     // Calculate the maximum width and height for the dialog based on the frame size
     const int maxWidth = 1200; // Set maximum width
     const int maxHeight = maxWidth * frame.rows / frame.cols; // Calculate corresponding height to maintain aspect ratio
@@ -33,8 +33,8 @@ CropFrame::CropFrame(cv::Mat frame, QRect initialROI, QWidget* parent)
     // Set initial ROI to cover the entire frame
     //selectedROI = QRect(0, 0, frame.cols-150, frame.rows-150);
     selectedROI = QRect(0, 0, maxWidth, maxHeight);
-   // QPoint selectionOrigin = QPoint(0, 0);
-    // Create OK and Cancel buttons
+    // QPoint selectionOrigin = QPoint(0, 0);
+     // Create OK and Cancel buttons
     okButton = new QPushButton("OK", this);
     cancelButton = new QPushButton("Cancel", this);
 
@@ -56,7 +56,13 @@ CropFrame::CropFrame(cv::Mat frame, QRect initialROI, QWidget* parent)
 
 QRect CropFrame::getSelectedROI() const
 {
-    return selectedROI;
+    // Adjust ROI to the original frame size
+    QRect adjustedROI;
+    adjustedROI.setX(selectedROI.x() * originalFrameSize.width() / width());
+    adjustedROI.setY(selectedROI.y() * originalFrameSize.height() / height());
+    adjustedROI.setWidth(selectedROI.width() * originalFrameSize.width() / width());
+    adjustedROI.setHeight(selectedROI.height() * originalFrameSize.height() / height());
+    return adjustedROI;
 }
 
 //void CropFrame::paintEvent(QPaintEvent* event)
@@ -118,11 +124,11 @@ void CropFrame::paintEvent(QPaintEvent* event)
     const int maxHeight = maxWidth / frameAspectRatio;
     cv::Mat resizedFrame;
     cv::resize(frame, resizedFrame, cv::Size(maxWidth, maxHeight), 0, 0, cv::INTER_AREA);
-    
+
     cv::Mat rgbFrame;
     cv::cvtColor(resizedFrame, rgbFrame, cv::COLOR_BGR2RGB);
     QImage qimg(reinterpret_cast<uchar*>(rgbFrame.data), rgbFrame.cols, rgbFrame.rows, rgbFrame.step, QImage::Format_RGB888);
-    
+
     painter.drawImage(0, 0, qimg);
 
     painter.setPen(QPen(Qt::red, 2));

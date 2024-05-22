@@ -3,6 +3,9 @@
 #include <opencv2/opencv.hpp>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPainter>
 
 class CropFrame : public QDialog
 {
@@ -23,6 +26,7 @@ private slots:
     void mouseMoveEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
 
+
 private:
 private:
     cv::Mat frame;
@@ -30,6 +34,7 @@ private:
     QPoint startPoint;
     QPoint endPoint;
     QRect selectedROI;
+    QSize originalFrameSize;
     bool selecting;
     bool dragging;
     bool resizing;
