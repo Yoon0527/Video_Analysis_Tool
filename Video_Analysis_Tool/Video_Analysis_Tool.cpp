@@ -1,8 +1,12 @@
 ﻿#include "Video_Analysis_Tool.h"
 #include "cropFrame.h"
+#include "ImageProcessor.h"
 #include <QFileDialog>
 #include <opencv2/opencv.hpp>
 #include <QMessageBox>
+#include <thread>
+#include <vector>
+#include <QThread>
 
 Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     : QMainWindow(parent)
@@ -24,7 +28,8 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
-{}
+{
+}
 
 void Video_Analysis_Tool::init_ui() {
     ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
@@ -58,6 +63,7 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 
         ui.slider_length->setMaximum(total_frame_len);
         roi = QRect(0, 0, v_width, v_height);
+        cvROI = cv::Rect(roi.x(), roi.y(), roi.width(), roi.height());
         connect(&timer, &QTimer::timeout, this, &Video_Analysis_Tool::show_media);
         timer.start(1000 / v_fps);
     }
@@ -65,6 +71,7 @@ void Video_Analysis_Tool::set_video(QString file_path) {
         qWarning("Error: Could not open video file.");
     }
 }
+
 
 //void Video_Analysis_Tool::show_media() {
 //    cv::Mat frame;
@@ -77,7 +84,7 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //    else {
 //        if (!roi.isNull()) {
 //            // Convert QRect to cv::Rect
-//            cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
+//            //cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
 //            //cv::Rect cvROI(798, 104, 1008, 875);
 //            // Ensure the ROI is within the bounds of the frame
 //            //cvROI &= cv::Rect(0, 0, frame.cols, frame.rows);
@@ -95,7 +102,8 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //
 //            // Scale image to fit QLabel
 //            img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-//
+//            qDebug() << Qt::KeepAspectRatio;
+//            qDebug() << Qt::SmoothTransformation;
 //            // Display the QImage in QLabel
 //            ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
 //        }
@@ -122,6 +130,11 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //}
 
 void Video_Analysis_Tool::show_media() {
+    ImageProcessor* imageProcessor = new ImageProcessor();
+    QThread* imageProcessorThread = new QThread();
+    imageProcessor->moveToThread(imageProcessorThread);
+    imageProcessorThread->start();
+
     cv::Mat frame;
     cap >> frame;
     //roi = QRect(798, 104, 1008, 875);
@@ -129,34 +142,28 @@ void Video_Analysis_Tool::show_media() {
         timer.stop();
         return;
     }
+    else {
+        if (!roi.isNull()) {
 
-    cv::Rect cvROI(roi.x(), roi.y(), roi.width(), roi.height());
-    //cv::Rect cvROI(798, 104, 1008, 875);
-    // Ensure the ROI is within the bounds of the frame
-    //cvROI &= cv::Rect(0, 0, frame.cols, frame.rows);
-
-    cv::Mat roi_frame = frame(cvROI).clone();
-
-    current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
-    ui.slider_length->setValue(current_frame);
-
-    // Convert BGR to RGB
-    cv::cvtColor(roi_frame, roi_frame, cv::COLOR_BGR2RGB);
-
-    // Convert frame to QImage
-    QImage img((const unsigned char*)(roi_frame.data), roi_frame.cols, roi_frame.rows, QImage::Format_RGB888);
-
-    // Scale image to fit QLabel
-    img = img.scaled(ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    // Display the QImage in QLabel
-    ui.lbl_frame->setPixmap(QPixmap::fromImage(img));
-
+            QMetaObject::invokeMethod(imageProcessor, "get_frame", Qt::BlockingQueuedConnection, Q_ARG(cv::Mat, frame), Q_ARG(cv::Rect,cvROI), Q_ARG(QSize, ui.lbl_frame->size()), Q_ARG(Qt::AspectRatioMode, Qt::KeepAspectRatio), Q_ARG(Qt::TransformationMode, Qt::SmoothTransformation), Q_RETURN_ARG(QImage, return_img));
+            
+            // Display the QImage in QLabel
+            ui.lbl_frame->setPixmap(QPixmap::fromImage(return_img));
+            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+            ui.slider_length->setValue(current_frame);
+        }
+        else {
+            
+            // Display the QImage in QLabel
+            ui.lbl_frame->setPixmap(QPixmap::fromImage(return_img));
+            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+            ui.slider_length->setValue(current_frame);
+        }
+    }
     play_status = true;
     ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     ui.slider_length->setEnabled(true);
 }
-
 
 void Video_Analysis_Tool::stop_media() {
     if (!play_status) {
@@ -260,6 +267,7 @@ void Video_Analysis_Tool::crop_frame() {
         CropFrame roiSelector(frame, initialROI, this);
         if (roiSelector.exec() == QDialog::Accepted) {
             roi = roiSelector.getSelectedROI();
+            cvROI = cv::Rect(roi.x(), roi.y(), roi.width(), roi.height());
             if (!play_status) {
                 stop_media();
             }

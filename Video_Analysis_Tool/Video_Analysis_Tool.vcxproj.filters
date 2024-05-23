@@ -64,6 +64,9 @@
     <ClCompile Include="cropFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImageProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decoding.h">
@@ -91,6 +94,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="cropFrame.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ImageProcessor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

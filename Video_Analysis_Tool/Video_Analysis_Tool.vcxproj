@@ -123,6 +123,7 @@
     <ClCompile Include="ai_run.cpp" />
     <ClCompile Include="cropFrame.cpp" />
     <ClCompile Include="decoding.cpp" />
+    <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="inference.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="utils.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="ai_run.h" />
     <QtMoc Include="cropFrame.h" />
     <ClInclude Include="decoding.h" />
+    <QtMoc Include="ImageProcessor.h" />
     <ClInclude Include="inference.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="utils.h" />

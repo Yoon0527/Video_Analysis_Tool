@@ -23,8 +23,9 @@ private:
     QString current_path;
     QTimer timer;
     QRect roi;
-    
+    QImage return_img;
     cv::VideoCapture cap;
+    cv::Rect cvROI;
     int media_cnt;
     int file_list_len;
 
@@ -39,6 +40,7 @@ private:
     void init_ui();
     void set_video(QString file_path);
 
+
 private slots:
     void load_media();
     void show_media();
@@ -51,4 +53,5 @@ private slots:
     void ai_analysis();
     void crop_frame();
     void resizeEvent(QResizeEvent* event);
+
 };
