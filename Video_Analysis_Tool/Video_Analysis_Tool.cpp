@@ -1,6 +1,5 @@
 ﻿#include "Video_Analysis_Tool.h"
 #include "cropFrame.h"
-#include "ImageProcessor.h"
 #include <QFileDialog>
 #include <opencv2/opencv.hpp>
 #include <QMessageBox>
@@ -25,10 +24,26 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     connect(ui.btn_crop, SIGNAL(clicked()), this, SLOT(crop_frame()));
 
     Inference ai_model;
+
+    imageProcessor = new ImageProcessor();
+    imageProcessorThread = new QThread(this);
+
+    imageProcessor->moveToThread(imageProcessorThread);
+    connect(imageProcessorThread, &QThread::finished, imageProcessor, &QObject::deleteLater);
+    connect(this, &Video_Analysis_Tool::process_frame, imageProcessor, &ImageProcessor::process_frame);
+    connect(imageProcessor, &ImageProcessor::frame_processed, this, &Video_Analysis_Tool::on_frame_processed);
+
+    imageProcessorThread->start();
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
 {
+    clean_up();
+}
+
+void Video_Analysis_Tool::clean_up() {
+    imageProcessorThread->quit();
+    imageProcessorThread->wait();
 }
 
 void Video_Analysis_Tool::init_ui() {
@@ -129,40 +144,63 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //    ui.slider_length->setEnabled(true);
 //}
 
-void Video_Analysis_Tool::show_media() {
-    ImageProcessor* imageProcessor = new ImageProcessor();
-    QThread* imageProcessorThread = new QThread();
-    imageProcessor->moveToThread(imageProcessorThread);
-    imageProcessorThread->start();
+//void Video_Analysis_Tool::show_media() {
+//    ImageProcessor* imageProcessor = new ImageProcessor();
+//    QThread* imageProcessorThread = new QThread();
+//    imageProcessor->moveToThread(imageProcessorThread);
+//    imageProcessorThread->start();
+//
+//    cv::Mat frame;
+//    cap >> frame;
+//    //roi = QRect(798, 104, 1008, 875);
+//    if (frame.empty()) {
+//        timer.stop();
+//        return;
+//    }
+//    else {
+//        if (!roi.isNull()) {
+//            QImage result;
+//            bool success = QMetaObject::invokeMethod(imageProcessor, "get_frame", Qt::DirectConnection, Q_RETURN_ARG(QImage, result),Q_ARG(cv::Mat, frame), Q_ARG(cv::Rect,cvROI), Q_ARG(QSize, ui.lbl_frame->size()), Q_ARG(Qt::AspectRatioMode, Qt::KeepAspectRatio), Q_ARG(Qt::TransformationMode, Qt::SmoothTransformation));
+//            
+//            // Display the QImage in QLabel
+//            ui.lbl_frame->setPixmap(QPixmap::fromImage(return_img));
+//            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+//            ui.slider_length->setValue(current_frame);
+//        }
+//        else {
+//            
+//            // Display the QImage in QLabel
+//            ui.lbl_frame->setPixmap(QPixmap::fromImage(return_img));
+//            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+//            ui.slider_length->setValue(current_frame);
+//        }
+//    }
+//    play_status = true;
+//    ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+//    ui.slider_length->setEnabled(true);
+//}
 
+void Video_Analysis_Tool::show_media() {
     cv::Mat frame;
     cap >> frame;
-    //roi = QRect(798, 104, 1008, 875);
+
     if (frame.empty()) {
         timer.stop();
         return;
     }
     else {
-        if (!roi.isNull()) {
-            QImage result;
-            bool success = QMetaObject::invokeMethod(imageProcessor, "get_frame", Qt::DirectConnection, Q_RETURN_ARG(QImage, result),Q_ARG(cv::Mat, frame), Q_ARG(cv::Rect,cvROI), Q_ARG(QSize, ui.lbl_frame->size()), Q_ARG(Qt::AspectRatioMode, Qt::KeepAspectRatio), Q_ARG(Qt::TransformationMode, Qt::SmoothTransformation));
-            
-            // Display the QImage in QLabel
-            ui.lbl_frame->setPixmap(QPixmap::fromImage(return_img));
-            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
-            ui.slider_length->setValue(current_frame);
-        }
-        else {
-            
-            // Display the QImage in QLabel
-            ui.lbl_frame->setPixmap(QPixmap::fromImage(return_img));
-            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
-            ui.slider_length->setValue(current_frame);
-        }
+        emit process_frame(frame, cvROI, ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+        ui.slider_length->setValue(current_frame);
     }
+
     play_status = true;
     ui.btn_play_pause->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     ui.slider_length->setEnabled(true);
+}
+
+void Video_Analysis_Tool::on_frame_processed(const QImage& result) {
+    ui.lbl_frame->setPixmap(QPixmap::fromImage(result));
 }
 
 void Video_Analysis_Tool::stop_media() {

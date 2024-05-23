@@ -2,13 +2,16 @@
 #include <QImage>
 #include <opencv2/opencv.hpp>
 
-class ImageProcessor :public QObject
-{
-	Q_OBJECT
+class ImageProcessor : public QObject {
+    Q_OBJECT
 
 public:
-	explicit ImageProcessor(QObject* parent = nullptr);
-	virtual ~ImageProcessor();
+    ImageProcessor() {}
+    ~ImageProcessor() {}
 
-	Q_INVOKABLE QImage get_frame(cv::Mat frame, cv::Rect cvROI, QSize lbl_size, Qt::AspectRatioMode aspect, Qt::TransformationMode smooth);
+public slots:
+    void process_frame(const cv::Mat& frame, const cv::Rect& roi, const QSize& size, Qt::AspectRatioMode aspectRatioMode, Qt::TransformationMode transformationMode);
+
+signals:
+    void frame_processed(const QImage& result);
 };

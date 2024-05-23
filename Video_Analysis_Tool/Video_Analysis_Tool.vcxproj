@@ -61,12 +61,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\OpenSSL-Win64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\OpenSSL-Win64\lib;C:\OpenSSL-Win64\lib\VC;C:\OpenSSL-Win64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <IncludePath>C:\OpenSSL-Win64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenSSL-Win64\lib\VC;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\OpenSSL-Win64\include;C:\OpenSSL-Win64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\OpenSSL-Win64\lib;C:\OpenSSL-Win64\lib\VC;C:\OpenSSL-Win64\lib\VC;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -75,7 +75,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcrypto.lib;libcrypto_static.lib;libssl.lib;libssl_static.lib;opencv_world480d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OpenSSL-Win64\lib;C:\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories);C:\opencv\build\x64\vc16\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\OpenSSL-Win64\lib\VC;C:\OpenSSL-Win64\lib;C:\OpenSSL-Win64\lib;C:\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories);C:\opencv\build\x64\vc16\lib;C:\opencv\build\x64\vc16\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -85,7 +85,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcrypto.lib;libcrypto_static.lib;libssl.lib;libssl_static.lib;opencv_world480.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OpenSSL-Win64\lib\VC\x64;C:\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories);C:\opencv\build\x64\vc16\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\OpenSSL-Win64\lib\VC;C:\OpenSSL-Win64\lib;C:\OpenSSL-Win64\lib\VC\x64;C:\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories);C:\opencv\build\x64\vc16\lib;C:\opencv\build\x64\vc16\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">

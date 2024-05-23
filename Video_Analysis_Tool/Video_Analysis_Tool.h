@@ -8,6 +8,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include "inference.h"
+#include "ImageProcessor.h"
 
 class Video_Analysis_Tool : public QMainWindow
 {
@@ -40,6 +41,12 @@ private:
     void init_ui();
     void set_video(QString file_path);
 
+    ImageProcessor* imageProcessor;
+    QThread* imageProcessorThread;
+    void clean_up();
+signals:
+    void process_frame(const cv::Mat& frame, const cv::Rect& roi, const QSize& size, Qt::AspectRatioMode aspectRatioMode, Qt::TransformationMode transformationMode);
+
 
 private slots:
     void load_media();
@@ -53,5 +60,7 @@ private slots:
     void ai_analysis();
     void crop_frame();
     void resizeEvent(QResizeEvent* event);
+
+    void on_frame_processed(const QImage& result);
 
 };
