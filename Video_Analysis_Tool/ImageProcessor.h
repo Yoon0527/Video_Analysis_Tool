@@ -10,5 +10,5 @@ public:
 	explicit ImageProcessor(QObject* parent = nullptr);
 	virtual ~ImageProcessor();
 
-	QImage get_frame(cv::Mat frame, cv::Rect cvROI, QSize lbl_size, Qt::AspectRatioMode aspect, Qt::TransformationMode smooth);
+	Q_INVOKABLE QImage get_frame(cv::Mat frame, cv::Rect cvROI, QSize lbl_size, Qt::AspectRatioMode aspect, Qt::TransformationMode smooth);
 };

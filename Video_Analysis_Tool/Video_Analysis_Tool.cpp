@@ -144,8 +144,8 @@ void Video_Analysis_Tool::show_media() {
     }
     else {
         if (!roi.isNull()) {
-
-            QMetaObject::invokeMethod(imageProcessor, "get_frame", Qt::BlockingQueuedConnection, Q_ARG(cv::Mat, frame), Q_ARG(cv::Rect,cvROI), Q_ARG(QSize, ui.lbl_frame->size()), Q_ARG(Qt::AspectRatioMode, Qt::KeepAspectRatio), Q_ARG(Qt::TransformationMode, Qt::SmoothTransformation), Q_RETURN_ARG(QImage, return_img));
+            QImage result;
+            bool success = QMetaObject::invokeMethod(imageProcessor, "get_frame", Qt::DirectConnection, Q_RETURN_ARG(QImage, result),Q_ARG(cv::Mat, frame), Q_ARG(cv::Rect,cvROI), Q_ARG(QSize, ui.lbl_frame->size()), Q_ARG(Qt::AspectRatioMode, Qt::KeepAspectRatio), Q_ARG(Qt::TransformationMode, Qt::SmoothTransformation));
             
             // Display the QImage in QLabel
             ui.lbl_frame->setPixmap(QPixmap::fromImage(return_img));
