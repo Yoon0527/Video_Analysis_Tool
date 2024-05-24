@@ -1,5 +1,10 @@
 #include "ImageProcessor.h"
 
+
+ImageProcessor::ImageProcessor() {
+    ai_model = new Inference();
+}
+
 void ImageProcessor::process_frame(const cv::Mat& frame, const cv::Rect& roi, const QSize& size, Qt::AspectRatioMode aspectRatioMode, Qt::TransformationMode transformationMode) {
     cv::Mat roi_frame = frame(roi).clone();
     cv::cvtColor(roi_frame, roi_frame, cv::COLOR_BGR2RGB);
