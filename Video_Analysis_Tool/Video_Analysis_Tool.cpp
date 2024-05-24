@@ -22,6 +22,7 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     connect(ui.btn_skip_before, SIGNAL(clicked()), this, SLOT(move_backward()));
     connect(ui.btn_analysis, SIGNAL(clicked()), this, SLOT(ai_analysis()));
     connect(ui.btn_crop, SIGNAL(clicked()), this, SLOT(crop_frame()));
+    connect(ui.btn_close, SIGNAL(clicked()), this, SLOT(exit()));
 
     Inference ai_model;
 
@@ -34,6 +35,8 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     connect(imageProcessor, &ImageProcessor::frame_processed, this, &Video_Analysis_Tool::on_frame_processed);
 
     imageProcessorThread->start();
+
+    showFullScreen();
 }
 
 Video_Analysis_Tool::~Video_Analysis_Tool()
@@ -316,6 +319,21 @@ void Video_Analysis_Tool::crop_frame() {
 
 void Video_Analysis_Tool::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-    // 타이머 주기를 고정하여 속도 느려짐 방지
-    timer.start(1000 / v_fps);
+    if (cap.isOpened()) {
+        // Get the current position in the video
+        int currentPos = cap.get(cv::CAP_PROP_POS_FRAMES);
+        cap.set(cv::CAP_PROP_POS_FRAMES, currentPos);
+
+        cv::Mat frame;
+        cap >> frame;
+
+        // Check if the frame is not empty
+        if (!frame.empty()) {
+            emit process_frame(frame, cvROI, ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        }
+    }
+}
+
+void Video_Analysis_Tool::exit() {
+    QApplication::quit();  // 프로그램 종료
 }

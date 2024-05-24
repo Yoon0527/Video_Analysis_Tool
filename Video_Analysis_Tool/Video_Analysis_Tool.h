@@ -60,6 +60,7 @@ private slots:
     void ai_analysis();
     void crop_frame();
     void resizeEvent(QResizeEvent* event);
+    void exit();
 
     void on_frame_processed(const QImage& result);
 
