@@ -24,7 +24,7 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     connect(ui.btn_crop, SIGNAL(clicked()), this, SLOT(crop_frame()));
     connect(ui.btn_close, SIGNAL(clicked()), this, SLOT(exit()));
 
-    Inference ai_model;
+    //Inference ai_model;
 
     imageProcessor = new ImageProcessor();
     imageProcessorThread = new QThread(this);
@@ -32,6 +32,7 @@ Video_Analysis_Tool::Video_Analysis_Tool(QWidget *parent)
     imageProcessor->moveToThread(imageProcessorThread);
     connect(imageProcessorThread, &QThread::finished, imageProcessor, &QObject::deleteLater);
     connect(this, &Video_Analysis_Tool::process_frame, imageProcessor, &ImageProcessor::process_frame);
+    connect(this, &Video_Analysis_Tool::process_frame_ai, imageProcessor, &ImageProcessor::process_frame_ai);
     connect(imageProcessor, &ImageProcessor::frame_processed, this, &Video_Analysis_Tool::on_frame_processed);
 
     imageProcessorThread->start();
@@ -184,6 +185,9 @@ void Video_Analysis_Tool::set_video(QString file_path) {
 //}
 
 void Video_Analysis_Tool::show_media() {
+    int sensitivity = 6;
+    int patient_num = 1234;
+
     cv::Mat frame;
     cap >> frame;
 
@@ -192,9 +196,17 @@ void Video_Analysis_Tool::show_media() {
         return;
     }
     else {
-        emit process_frame(frame, cvROI, ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
-        ui.slider_length->setValue(current_frame);
+        if (!ai_status) {
+            emit process_frame(frame, cvROI, ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+            ui.slider_length->setValue(current_frame);
+        }
+        else if (ai_status) {
+            emit process_frame_ai(frame, cvROI, ui.lbl_frame->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation, sensitivity, current_frame, patient_num);
+            current_frame = cap.get(cv::CAP_PROP_POS_FRAMES);
+            ui.slider_length->setValue(current_frame);
+        }
+        
     }
 
     play_status = true;

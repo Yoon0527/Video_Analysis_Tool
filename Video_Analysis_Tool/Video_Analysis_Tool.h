@@ -7,7 +7,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
-#include "inference.h"
+//#include "inference.h"
 #include "ImageProcessor.h"
 
 class Video_Analysis_Tool : public QMainWindow
@@ -46,7 +46,7 @@ private:
     void clean_up();
 signals:
     void process_frame(const cv::Mat& frame, const cv::Rect& roi, const QSize& size, Qt::AspectRatioMode aspectRatioMode, Qt::TransformationMode transformationMode);
-
+    void process_frame_ai(const cv::Mat& frame, const cv::Rect& roi, const QSize& size, Qt::AspectRatioMode aspectRatioMode, Qt::TransformationMode transformationMode, int sensitivity, int frame_number, int patient_number);
 
 private slots:
     void load_media();

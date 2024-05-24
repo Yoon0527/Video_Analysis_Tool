@@ -13,7 +13,7 @@ public:
 	Inference();
 	~Inference();
 
-	void inference_frame(cv::Mat frame, int sensitivity, int frame_number, int patient_number);
+	std::vector<std::vector<int>> inference_frame(cv::Mat frame, int sensitivity, int frame_number, int patient_number);
 
 private:
 	std::unique_ptr<Ort::Session> ortSessionDetection;
@@ -44,6 +44,8 @@ private:
 	int init_detection = 0;
 	int continue_detection = 0;
 	int frame_location_number = 0;
+
+	std::vector<cv::Vec4f> convertToVec4f(const std::vector<float>& detection_boxes);
 
 private:
 	cv::Mat loadAnchors(const std::string& file_path);
